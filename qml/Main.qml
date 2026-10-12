@@ -21,25 +21,30 @@ Window {
 
     // Instantiate the C++ model directly in QML declarative tree
     ShapeModel {
-        id: physicsModel
+        id: shapeModel
+    }
+
+    PhysicsEngine {
+        id: physicsEngine
+        shapeModel: shapeModel
 
         // Component.onCompleted is a built-in lifecycle signal.
         // It triggers as soon as the QML engine successfully loads this window.
-        Component.onCompleted: physicsModel.startSimulation()
+        Component.onCompleted: physicsEngine.startSimulation()
     }
 
     // Instantiates visual items for each row provided by the C++ QAbstractListModel
     Repeater {
-        model: physicsModel
+        model: shapeModel
 
-        // DelegateChooser acts as a polymorphism handler on the UI side.
+        // DelegateChooser acts as a polymphysicsModelorphism handler on the UI side.
         // It inspects the "shapeType" role from C++ and selects the matching delegate.
         delegate: DelegateChooser {
             role: "shapeType"
 
             // Case 0: Rendering a Circle (matches ShapeType::Circle in C++)
             DelegateChoice {
-                roleValue: 0
+                roleValue: ShapeModel.Circle
 
                 Rectangle {
                     // C++ model provides center coordinates (posX, posY).
@@ -59,7 +64,7 @@ Window {
 
             // Case 1: Rendering a Square (matches ShapeType::Square in C++)
             DelegateChoice {
-                roleValue: 1
+                roleValue: ShapeModel.Square
 
                 Rectangle {
                     // Apply top-left positioning offset based on the square's total size
@@ -77,7 +82,7 @@ Window {
 
             // Case 2: Rendering a Triangle (matches ShapeType::Triangle / type 2 in C++)
             DelegateChoice {
-                roleValue: 2
+                roleValue: ShapeModel.Triangle
 
                 // The Shape component handles modern GPU-accelerated vector drawing
                 Shape {
@@ -130,7 +135,7 @@ Window {
         anchors.margins: 15
 
         // Dynamic binding: automatically re-evaluates whenever rowCount changes in C++
-        text: "Active Shapes: " + physicsModel.rowCount()
+        text: "Active Shapes: " + shapeModel.rowCount()
         color: "#888888"
         font.pointSize: 11
         font.family: "Monospace"
